@@ -1,6 +1,6 @@
 import { Tabs } from 'antd';
 // import ManageAccess from '../components/ManageAccess';
-import { AssignRoles, AssignSubdomains, CreateRole } from '../components/Roles';
+import { CreateRole } from '../components/Roles';
 import AccessControlSettings from './AccessControlSettings';
 
 const { TabPane } = Tabs;

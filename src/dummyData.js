@@ -6,7 +6,7 @@ import CustomerContact from "./views/components/Customers/CustomerContact";
 import AddRoleModal from "./views/components/Roles/AddRoleModal";
 import { Option } from "antd/lib/mentions";
 import { showMessage } from "./helper";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 
 
@@ -296,8 +296,9 @@ export const inprogressCols = [
 		title: 'Actions',
 		render: (row) => (
 			row.status === "Validated" ? <Space size="middle">
-				<Tooltip title="Edit Subdomain">					
-						<Button>Add to Load balancer</Button>
+				<Tooltip title="Edit Subdomain">					<Link to="/dashboard/manage-subdomain/addToLoadBalancer">
+							<Button>Add to Load balancer</Button>
+						</Link>	
 				</Tooltip>
 			</Space> : "Waiting for validation"
 		),

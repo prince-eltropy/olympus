@@ -8,6 +8,7 @@ import {
 	Login, 
 	Settings, 
 	Subdomains } from '../../views/containers';
+import { AddRegex } from '../../views/components/Subdomain';
 
 
 export interface RouteType {
@@ -96,7 +97,7 @@ export const DashboardRoutes : Array<RouteType> = [
 		exact: false
 	},
 	{
-		name: 'addSubdomain',
+		name: 'addSubdomainFlow',
 		header: 'New Subdomain',
 		path: '/dashboard/add-subdomain/:step',
 		component: AddSubdomain,
@@ -116,6 +117,14 @@ export const DashboardRoutes : Array<RouteType> = [
 		header: 'customer details',
 		path: '/dashboard/manage-customers/view/:cid',
 		component: CustomerDetails,
+		props: null,
+		exact: false
+	},
+	{
+		name: 'addToLoadBalancer',
+		header: 'Add to Load Balancer',
+		path: '/dashboard/manage-subdomain/addToLoadBalancer',
+		component: AddRegex,
 		props: null,
 		exact: false
 	}

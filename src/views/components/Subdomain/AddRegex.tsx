@@ -1,17 +1,16 @@
-import { Select, Card, Button, Modal } from "antd";
+import { Select, Card, Button } from "antd";
 import { PlayCircleOutlined } from '@ant-design/icons';
 import { Link } from "react-router-dom";
-import { byDNSModalConfig, byEmailModalConfig } from "../../../dummyData";
 
 
 export interface AddRegexProps {
-	byMethod: Number,
+	
 }
  
-export const AddRegex: React.FC<AddRegexProps> = ({byMethod}) => {
+export const AddRegex: React.FC<AddRegexProps> = () => {
 	const { Option } = Select;
 	return (
-		<>
+		<div className="m-4 p-4 bg-white shadow-sm">
 			<div>
 				<b>MAP CERTIFICATE :</b> 
 				
@@ -53,16 +52,10 @@ export const AddRegex: React.FC<AddRegexProps> = ({byMethod}) => {
 			</div>
 
 			<div className="m-1 text-right">
-				<Link to="/dashboard/add-subdomain/add-regex">
-					<Button onClick={() => {
-						byMethod === 1 ?
-						Modal.info(byDNSModalConfig) :
-						Modal.info(byEmailModalConfig)
-					}} type="primary"> 
+					<Button type="primary"> 
 						< PlayCircleOutlined /> Go Live
 					</Button>
-				</Link>
 			</div>
-		</>
+		</div>
 	);
 }
