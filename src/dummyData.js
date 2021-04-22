@@ -1,12 +1,11 @@
-import { Button, Divider, List, message, Select, Space, Table, Tooltip } from "antd"
+import { Button, Descriptions, Divider, List, Select, Space, Table, Tooltip } from "antd"
 import {
-	DeleteOutlined,EditTwoTone
+	DeleteOutlined,EditTwoTone, RollbackOutlined
   } from '@ant-design/icons';
 import CustomerContact from "./views/components/Customers/CustomerContact";
-import AddRoleModal from "./views/components/Roles/AddRoleModal";
 import { Option } from "antd/lib/mentions";
 import { showMessage } from "./helper";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 
 
@@ -297,7 +296,7 @@ export const inprogressCols = [
 		render: (row) => (
 			row.status === "Validated" ? <Space size="middle">
 				<Tooltip title="Edit Subdomain">					<Link to="/dashboard/manage-subdomain/addToLoadBalancer">
-							<Button>Add to Load balancer</Button>
+							<Button type="primary" >Add to Load balancer</Button>
 						</Link>	
 				</Tooltip>
 			</Space> : "Waiting for validation"
@@ -322,6 +321,10 @@ export const inprogressData = [
 		status : "Pending"
 	},{
 		certificate: "globalcreditunion.eltropy.com",
+		validity: "Requested",
+		status : "Validated"
+	},{
+		certificate: "samplecu.eltropy.com",
 		validity: "Requested",
 		status : "Validated"
 	}
@@ -473,6 +476,22 @@ const dnsData = [
 	}
 ];
 
+export const cNameMappingReview = {
+	title: 'One last check',
+	content: (
+	  <>
+		<Descriptions title="Please review the CNAME Mapping" bordered>
+			<Descriptions.Item label="Host Regex" span={4}>securetext.samplecu.com</Descriptions.Item>
+			<Descriptions.Item label="Certificate Name">samplecu.eltropy.com</Descriptions.Item>
+		</Descriptions>
+	  </>
+	),
+	okText: "OK",
+	cancelText: "Go Back",
+	width: 600,
+	onOk : () => {}
+};
+
 export const byDNSModalConfig = {
 	title: 'Validation By DNS',
 	content: (
@@ -487,3 +506,43 @@ export const byDNSModalConfig = {
 	onOk : () => {},
 	width: 980
 };
+
+
+
+
+export const recentlyDeployedCols = [
+	{
+		title: 'CNAME',
+		dataIndex: 'name',
+		key: 'name'
+	  },
+	  {
+		title: 'Host Regex',
+		dataIndex: 'hregex',
+		key: 'hregex'
+	  },
+	  {
+		title: 'Deployed on',
+		dataIndex: 'dtime',
+		key: 'dtime'
+	  },
+	  {
+		title: 'Actions',
+		render: (row) => (
+			
+				<Tooltip title="Edit Subdomain">					
+					<Button danger icon={<RollbackOutlined />}>Rollback</Button>
+				</Tooltip>
+		),
+		key: 'actions'
+	}
+	  
+]
+
+export const recentlyDeployedData = [
+	{
+		name: 'samplecu.eltropy.com',
+		hregex: 'securetext.samplecu.com',
+		dtime: '22 Apr 2021'
+	}
+];

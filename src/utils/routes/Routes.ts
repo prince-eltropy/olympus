@@ -65,6 +65,14 @@ export const DashboardRoutes : Array<RouteType> = [
 		exact: true
 	},
 	{
+		name: 'manageSubdomains',
+		header: 'Manage Subdomains',
+		path: '/dashboard/manage-subdomains/recent',
+		component: Subdomains,
+		props: null,
+		exact: true
+	},
+	{
 		name: 'editSubdomains',
 		header: 'Edit Subdomain',
 		path: '/dashboard/manage-subdomains/edit/:id',

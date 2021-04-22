@@ -1,6 +1,6 @@
 import { Tabs, Row, Col, Card, Select, Table } from 'antd';
 import Text from 'antd/lib/typography/Text';
-import { inprogressCols, inprogressData } from '../../dummyData';
+import { inprogressCols, inprogressData, recentlyDeployedCols, recentlyDeployedData } from '../../dummyData';
 import { ManageSubdomains } from '../components/Subdomain/';
 
 const { Option } = Select;
@@ -11,7 +11,13 @@ export interface SubdomainsProps {
 }
  
 export const Subdomains: React.FC<SubdomainsProps> = ({match}) => {
-	let selectedTabKey = match.path === "/dashboard/manage-subdomains/in-progress" ? "2" : "1";
+	let selectedTabKey = "1";
+	if(match.path === "/dashboard/manage-subdomains/in-progress") {
+		selectedTabKey = "2";
+	} else if (match.path === "/dashboard/manage-subdomains/recent") {
+		selectedTabKey = "3";
+	}
+
 	return (
 		<div className="container my-2 m-4 row m-0">
 			<Tabs defaultActiveKey={selectedTabKey} >
@@ -52,6 +58,12 @@ export const Subdomains: React.FC<SubdomainsProps> = ({match}) => {
 							</Card>
 						</Col>
 					</Row>
+				</TabPane>
+				<TabPane tab="Recently Deployed" key="3">
+					<Table 
+						pagination={false} columns={recentlyDeployedCols}
+						dataSource={recentlyDeployedData}
+						/>
 				</TabPane>
 			</Tabs>
 		</div>
