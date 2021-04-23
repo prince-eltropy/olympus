@@ -1,13 +1,11 @@
-import { queries } from "@testing-library/react";
-import { AutoComplete, Button, Col, Divider, Input, List, Menu, Row, Select, Space, Tabs, Typography } from "antd"
+import { AutoComplete, Button, Col, Divider, Input, List, Menu, Row, Select, Tabs } from "antd"
 import Search from "antd/lib/input/Search";
 import { useState } from "react";
+import { AccessControlSettingsProps } from "../../types/props/containerProps";
 import { roles } from "../../dummyData";
 import { showMessage } from "../../helper";
 
-export interface AccessControlSettingsProps {
-	
-}
+
 const { Option } = Select;
 const { TabPane } = Tabs;
  
@@ -80,7 +78,6 @@ const AccessControlSettings: React.FC<AccessControlSettingsProps> = () => {
 	};
 	const addSubdomainAccess = (subdomainName: string) => {
 		showMessage("Please Wait...", `${subdomainName}'s access was successfully granted from ${currentUser}`)
-		debugger;
 		let newDomainInfo = subdomainData.find(x => x.value === subdomainName);
 		let updatedSubdomainData = [...userSubdomainData];
 		if(newDomainInfo) { 

@@ -1,5 +1,4 @@
-import { Home, SubdomainSettings } from '../../views/components';
-import { AddSubdomain } from '../../views/components/AddSubdomain';
+import { AddSubdomain } from '../../views/containers/';
 import CustomerDetails from '../../views/components/Customers/CustomerDetails';
 import ManageCustomers from '../../views/components/Customers/ManageCustomers';
 import Dashboard from '../../views/containers/Dashboard';
@@ -9,6 +8,8 @@ import {
 	Settings, 
 	Subdomains } from '../../views/containers';
 import { AddRegex } from '../../views/components/Subdomain';
+import { Home } from '../../views/containers/Home';
+import { SubdomainSettings } from '../../views/components/Subdomain/SubdomainSettings';
 
 
 export interface RouteType {

@@ -1,9 +1,6 @@
 import { Row, Col } from 'antd';
+import { AnalyticsProps } from '../../types/props/containerProps';
 
-export interface AnalyticsProps {
-	
-}
- 
 export const Analytics: React.FC<AnalyticsProps> = ()  => {
 
 	return (

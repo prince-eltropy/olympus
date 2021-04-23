@@ -5,22 +5,22 @@ import { MainRoutes } from './utils/routes/Routes';
 
 function App() {
   return (
-	<>
-		<div id="App ">
-			<Router>
-					<Switch> 
-						{MainRoutes.map((route, key) => (
-							<Route 
-								key={key}
-								path={route.path} 
-								component={route.component} 
-								exact={route.exact}  />
-						))}
-
-					</Switch>
-			</Router>
-		</div>
-	</>
+    <>
+      <div id="App ">
+        <Router>
+          <Switch>
+            {MainRoutes.map((route, key) => (
+              <Route
+                key={key}
+                path={route.path}
+                component={route.component}
+                exact={route.exact}
+              />
+            ))}
+          </Switch>
+        </Router>
+      </div>
+    </>
   );
 }
 
