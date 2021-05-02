@@ -1,22 +1,24 @@
 import { AutoComplete, Button, Col, Divider, Input, List, Menu, Row, Select, Tabs } from "antd"
 import Search from "antd/lib/input/Search";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AccessControlSettingsProps } from "../../types/props/containerProps";
-import { roles } from "../../dummyData";
+// import { roles } from "../../dummyData";
 import { showMessage } from "../../helper";
+import { genericApiCall } from "../../utils/services";
+import HttpMethods from "../../types/enums/HttpMethods";
 
 
 const { Option } = Select;
 const { TabPane } = Tabs;
  
-const userData = [
-	'Sarala V',
-	'Prashantha Kumar',
-	'Murali Krishna',
-	'Jim Cairns',
-	'Rakesh Goyal',
-	'Sai Kothapalle'
-  ];
+// const userData = [
+// 	'Sarala V',
+// 	'Prashantha Kumar',
+// 	'Murali Krishna',
+// 	'Jim Cairns',
+// 	'Rakesh Goyal',
+// 	'Sai Kothapalle'
+//   ];
 
 const subdomainData = [
 	{
@@ -33,31 +35,120 @@ const subdomainData = [
 	}
 ]
 
+interface subdomainAutocompleteType {
+	id: string
+	value: string
+}
+interface subdomainType {
+	id: string,
+    domainId: number,
+    createdOn: Date,
+    updatedOn: Date,
+    domainName: string,
+    industry: string,
+    certificateName: string,
+    verifyMethod: string,
+    verifyOn: string,
+    status: string,
+    isDeleted: boolean
+}
+interface roleInUserListType {
+	id: string,
+	name: string
+}
+interface subdomainInUserListType {
+	id: string,
+	name: string
+}
+interface userListType {
+	id: string,
+	createdOn: string,
+	updatedOn: string,
+	fullname: string,
+	username: string,
+	email: string,
+	department: string,
+	roles: roleInUserListType[],
+	domains: subdomainInUserListType[]
+}
+interface roleListType {
+	id: string,
+    createdOn: string,
+    updatedOn: string,
+    name: string,
+    access: [],
+    isDeleted: boolean
+}
+
 const AccessControlSettings: React.FC<AccessControlSettingsProps> = () => {
 
-	const [currentUser, setCurrentUser] = useState(userData[0]);
-	const [usersList, setUsersList] = useState(userData);
-	const [domainsData, setDomainsData] = useState(subdomainData);
-	const [userSubdomainData, setUserSubdomainData] = useState([{
-		value: "Texas CU",
-		subdomain: "text.tcu.com"
-	}]);
+	const [defaultSubdomains, setDefaultSubdomains] = useState<subdomainAutocompleteType[]>();
+
+	const [currentUser, setCurrentUser] = useState<userListType>();
+	const [currentUserRole, setCurrentUserRoles] = useState<string[]>();
+	const [usersList, setUsersList] = useState<userListType[]>();
+	const [domainsData, setDomainsData] = useState<subdomainAutocompleteType[]>();
+	const [currentUserSubdomainData, setUserSubdomainData] = useState<subdomainAutocompleteType[]>([]);
+
+	const [roles, setRoles] = useState<roleListType[]>();
+
+  const getAllRoles = async () => {
+	let allRoles = await genericApiCall(HttpMethods.GET, '/adminportal/roles', {});
+	let activeRoles = allRoles.filter((x:any) => x.isDeleted === false)
+	setRoles(activeRoles);
+  }
+
+  const getAllSubdomains = async () => {
+	
+	let allSubdomains: subdomainType[] = await genericApiCall(HttpMethods.GET, '/adminportal/subdomains', {});
+	if(allSubdomains) {
+		let mappedSubdomains = Array.from(allSubdomains, x => {return {id:x.id,value:x.domainName}});
+		// console.log(mappedSubdomains);
+		setDomainsData(mappedSubdomains);
+		setDefaultSubdomains(mappedSubdomains) 
+		
+	}
+  }
+
+
+  	const setDefaultRolesSubdomainsForCurrentUser = () => {
+		let cUserRoles = currentUser?.roles;
+		let cUserSubdomains = currentUser?.domains;
+		
+		
+		if(cUserRoles) {
+			let mappedRoles = Array.from(cUserRoles, x => {return x.name});
+			setCurrentUserRoles(mappedRoles);
+			console.log(currentUserRole, mappedRoles);
+		} else {
+			setCurrentUserRoles([]);
+		}
+
+		if(cUserSubdomains) {
+			let mappedSubdomains = Array.from(cUserSubdomains, x => {return {id: x.id, value:x.name}});
+			// console.log(mappedSubdomains);
+			setUserSubdomainData(mappedSubdomains);
+		} else {
+			setUserSubdomainData([]);
+		}
+
+	}
 
 	const filterUser = (query :string) => {
-		
-		if(query && query !== "") {
-			let filteredUsers = userData.filter(x => {return x.toLowerCase().includes(query.toLowerCase()) !== false});
+		let userData = usersList;
+		if(query && query !== "" && userData) {
+			let filteredUsers = userData.filter(x => {return x.fullname.toLowerCase().includes(query.toLowerCase()) !== false});
 			setUsersList(filteredUsers);
 			setCurrentUser(filteredUsers[0]);
 		} else {
 			setUsersList(userData);
-			setCurrentUser(usersList[0]);
+			// setCurrentUser(userData2[0]);
 		}
 	}
 
 	const filterDomains = (query :string) => {
 		
-		if(query && query !== "") {
+		if(domainsData && query && query !== "") {
 			let filteredDomains = domainsData.filter(x => {
 						if(x.value.toLowerCase().includes(query.toLowerCase())) { return x; } else {
 							return null;
@@ -67,19 +158,30 @@ const AccessControlSettings: React.FC<AccessControlSettingsProps> = () => {
 				});
 			setDomainsData(filteredDomains);
 		} else {
-			setDomainsData(subdomainData);
+			setDomainsData(defaultSubdomains);
 		}
 	}
 
-	const removeSubdomainAccess = (subdomainName: string) => {
-		showMessage("Please Wait...", `${subdomainName}'s access was successfully revoked from ${currentUser}`)
-		let filteredDomains = userSubdomainData.filter(x => {return x.value !== subdomainName});
+	const removeSubdomainAccess = async(subdomainName: string, subdomainID: string) => {
+		showMessage("Please Wait...", `${subdomainName}'s access was successfully revoked from ${currentUser?.fullname}`)
+
+		await genericApiCall(HttpMethods.DELETE, `/adminportal/users/${currentUser?.id}/subdomains/${subdomainID}`, {});
+		let filteredDomains = currentUserSubdomainData.filter(x => {return x.id !== subdomainID});
 		setUserSubdomainData(filteredDomains);
 	};
-	const addSubdomainAccess = (subdomainName: string) => {
-		showMessage("Please Wait...", `${subdomainName}'s access was successfully granted from ${currentUser}`)
-		let newDomainInfo = subdomainData.find(x => x.value === subdomainName);
-		let updatedSubdomainData = [...userSubdomainData];
+
+
+	const addSubdomainAccess = async( subdomainName: string, optionData :any) => {
+		showMessage("Please Wait...", `${subdomainName}'s access was successfully granted from ${currentUser?.fullname}`)
+
+		let payload = {
+			id: optionData.id,
+			name: subdomainName
+		}
+
+		await genericApiCall(HttpMethods.POST, `/adminportal/users/${currentUser?.id}/subdomains`, payload);
+		let newDomainInfo = domainsData && domainsData.find(x => x.value === subdomainName);
+		let updatedSubdomainData = [...currentUserSubdomainData];
 		if(newDomainInfo) { 
 			updatedSubdomainData.push(newDomainInfo)
 		}	
@@ -87,9 +189,57 @@ const AccessControlSettings: React.FC<AccessControlSettingsProps> = () => {
 	};
 
 
-
+	const assignRoleToUser = async(selectedIndex: string) => {
+		let selectedData = selectedIndex.split('!');
+		let selectedRoleName = selectedData[1];
+		let selectedRoleID = selectedData[0];
 	
+		let payload = {
+			id: selectedRoleID,
+			name: selectedRoleName
+		}
+		
+		await genericApiCall(HttpMethods.POST, `/adminportal/users/${currentUser?.id}/roles`, payload);
 
+		console.log(selectedRoleID)
+		showMessage("Please Wait...", `${selectedRoleName}  was successfully assigned to ${currentUser?.fullname}`)
+	}
+
+	const unassignRoleToUser = async(selectedIndex: string) => {
+		let selectedData = selectedIndex.split('!');
+		let selectedRoleName = selectedData[1];
+		let selectedRoleID = selectedData[0];
+
+
+		await genericApiCall(HttpMethods.DELETE, `/adminportal/users/${currentUser?.id}/roles/${selectedRoleID}`, {});
+
+		showMessage("Please Wait...", `${selectedRoleName}  was successfully revoked from ${currentUser?.fullname}`)
+	}
+
+	useEffect(() => {
+		(async () => {
+			
+			setDefaultRolesSubdomainsForCurrentUser();
+			let allUsers = await genericApiCall(HttpMethods.GET, '/adminportal/users', {});
+			setUsersList(allUsers);
+			
+			await getAllRoles()
+		})();
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [currentUser])
+
+	useEffect(() => {
+		(async () => {
+			  let allUsers = await genericApiCall(HttpMethods.GET, '/adminportal/users', {});
+			  setUsersList(allUsers);
+			  if(usersList) {
+				setCurrentUser(usersList[0]);
+			  }
+			  await getAllRoles();
+			  await getAllSubdomains();
+			  setDefaultRolesSubdomainsForCurrentUser();
+		})();
+	},[])
 	
 
 	return (
@@ -103,14 +253,14 @@ const AccessControlSettings: React.FC<AccessControlSettingsProps> = () => {
 						<div className="m-2" />
 
 						<Menu defaultSelectedKeys={["0"]}>
-							{usersList.map((user, key)=>(
+							{usersList && usersList.map((user, key)=>(
 								<>
 									<Menu.Item 
 										className="my-0" 
 										key={key}
 										onClick={(e) => setCurrentUser(user)}
 									>
-										{user}
+										{user.fullname}
 									</Menu.Item>
 									{/* <Menu.Divider/> */}
 								</>
@@ -125,13 +275,12 @@ const AccessControlSettings: React.FC<AccessControlSettingsProps> = () => {
 								mode="multiple"
 								style={{ width: '100%' }}
 								placeholder="Please select"
-								defaultValue={['BASIC']}
-								onSelect = {selectedIndex => 
-									showMessage("Please Wait...", `${selectedIndex}  was successfully assigned to ${currentUser}`)}
-								onDeselect = {(selectedIndex) => showMessage("Please Wait...", `${selectedIndex}  was successfully revoked from ${currentUser}`)}
+								defaultValue={currentUserRole && currentUserRole}
+								onSelect = {data => assignRoleToUser(data)}
+								onDeselect = {(data) => unassignRoleToUser(data)}
 							>
-							{roles.map((role, key)=>(
-								<Option value={role} key={key}>{role}</Option>
+							{roles && roles.map((role)=>(
+								<Option value={`${role.id}!${role.name}`} key={role.id}>{role.name}</Option>
 							))}
 						</Select>
 							</TabPane>
@@ -146,10 +295,10 @@ const AccessControlSettings: React.FC<AccessControlSettingsProps> = () => {
 
 								<List
 									className="mt-2 pl-2"
-									dataSource={userSubdomainData}
+									dataSource={currentUserSubdomainData}
 									renderItem={subd => 
-										<List.Item actions={[<Button size="small" type="link" key="remove-subdomain" onClick={() => removeSubdomainAccess(subd.value)}>Remove</Button>]}>
-											{subd.value} ( {subd.subdomain} ) 
+										<List.Item actions={[<Button size="small" type="link" key="remove-subdomain" onClick={() => removeSubdomainAccess(subd.value ,subd.id)}>Remove</Button>]}>
+											{subd.value} 
 										</List.Item>}
 								/>
 							</TabPane>

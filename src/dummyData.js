@@ -343,8 +343,8 @@ export const inprogressData = [
 export const roleCols = [
   {
     title: 'Role',
-    dataIndex: 'role',
-    key: 'role',
+    dataIndex: 'name',
+    key: 'name',
   },
   {
     title: 'Actions',

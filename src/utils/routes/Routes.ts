@@ -5,8 +5,8 @@ import Dashboard from '../../views/containers/Dashboard';
 import { 
 	Analytics,
 	Login, 
-	Settings, 
-	Subdomains } from '../../views/containers';
+	Settings,
+	Subdomains} from '../../views/containers';
 import { AddRegex } from '../../views/components/Subdomain';
 import { Home } from '../../views/containers/Home';
 import { SubdomainSettings } from '../../views/components/Subdomain/SubdomainSettings';

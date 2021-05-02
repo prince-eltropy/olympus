@@ -56,7 +56,7 @@ const mapStateToProps = (state: { uiState: { headerText: string } }) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  setHeader: (headerText: String) => dispatch(updateHeaderText(headerText)),
+  setHeader: (headerText: string) => dispatch(updateHeaderText(headerText)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

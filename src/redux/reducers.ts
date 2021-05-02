@@ -1,6 +1,8 @@
 import { UPDATE_HEADER_TEXT } from './actions';
 
-export const uiState = (state  = { headerText: "Home", backButton: false }, action) => {
+interface uiStateActionType {type: string, payload: {newHeading : string}}
+
+export const uiState = (state  = { headerText: "Home", backButton: false }, action: uiStateActionType) => {
 	const { type, payload } = action;
 
 	switch (type) {

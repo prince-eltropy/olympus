@@ -1,11 +1,23 @@
 import { Row, Col, Typography, Table, Button } from 'antd';
 import { roleCols, roleData } from '../../../dummyData';
 import { PlusCircleOutlined } from '@ant-design/icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddRoleModal from './AddRoleModal';
 import { CreateRoleProps } from '../../../types/props/rolesProps';
+import { genericApiCall } from '../../../utils/services';
+import HttpMethods from '../../../types/enums/HttpMethods';
 
 const { Title } = Typography;
+
+interface roleDataType {
+	id: string,
+    createdOn:Date,
+    updatedOn: Date,
+    name: string,
+    access: [],
+    isDeleted: boolean
+}
+
 
 export const CreateRole: React.FC<CreateRoleProps> = () => {
   const [visible, setVisiblity] = useState(false);
@@ -15,6 +27,22 @@ export const CreateRole: React.FC<CreateRoleProps> = () => {
     let updatedVisiblity = visible ? false : true;
     setVisiblity(updatedVisiblity);
   };
+
+  const [roles, setRoles] = useState<roleDataType[]>();
+
+  const getAllRoles = async () => {
+	let allRoles :roleDataType[] = await genericApiCall(HttpMethods.GET, '/adminportal/roles', {});
+	
+	let activeRoles = allRoles.filter(x => x.isDeleted === false)
+	setRoles(activeRoles);
+
+  }
+
+  useEffect(() => {
+	  (async () => {
+		  await getAllRoles();
+	  })();
+  },[])
 
   return (
     <>
@@ -39,13 +67,14 @@ export const CreateRole: React.FC<CreateRoleProps> = () => {
 
         <Col span={24}>
           <AddRoleModal
+		  	getRoles = {getAllRoles}
             visible={visible}
             toggleVisiblity={toggleVisiblity}
             data={currentRole}
           />
           <Table
             columns={roleCols}
-            dataSource={roleData}
+            dataSource={roles}
             onRow={record => {
               return {
                 onClick: () => {
